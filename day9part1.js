@@ -1,5 +1,7 @@
 // 452 players; last marble is worth 71250 points
 
+var startTime = new Date();
+
 // players score
 var players = [];
 for (var p = 0; p < 452; p++) {
@@ -46,3 +48,5 @@ function moduloAdd(base, change, mod) {
 }
 
 console.log(Math.max(...players));
+
+console.log(new Date() - startTime + 'ms');

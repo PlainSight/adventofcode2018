@@ -1,5 +1,7 @@
 // 452 players; last marble is worth 7125000 points
 
+var startTime = new Date();
+
 // players score
 var players = [];
 for (var p = 0; p < 452; p++) {
@@ -52,3 +54,5 @@ for (var m = 1; m <= 7125000; m++) {
 
 
 console.log(Math.max(...players));
+
+console.log(new Date() - startTime + 'ms');
