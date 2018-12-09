@@ -1,5 +1,3 @@
-// inc = clockwise, dec = counter-clockwise
-
 // 452 players; last marble is worth 71250 points
 
 // players score
