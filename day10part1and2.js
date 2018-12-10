@@ -2,33 +2,21 @@ var a = [{ x: 21518, y: -21209, dx: -2, dy: 2 }, { x: 10842, y: 21423, dx: -1, d
 
 
 function printStars(t) {
-	var pixels = {};
-	
-	var minx = 99999;
-	var miny = 99999;
-	var maxx = -99999;
-	var maxy = -99999;
-	
-	for(var i = 0; i < a.length; i++) {
-		var xt = a[i].x + (t * a[i].dx);
-		var yt = a[i].y + (t * a[i].dy);
-		if(xt < minx) {
-			minx = xt;
-		}
-		if(xt > maxx) {
-			maxx = xt;
-		}
-		if(yt < miny) {
-			miny = yt;
-		}
-		if(yt > maxy) {
-			maxy = yt;
-		}
-		
-		pixels[xt+','+yt] = true;
-	}
+	var minx = Math.min(...a.map(s => s.x + t*s.dx));
+	var miny = Math.min(...a.map(s => s.y + t*s.dy));
+	var maxx = Math.max(...a.map(s => s.x + t*s.dx));
+	var maxy = Math.max(...a.map(s => s.y + t*s.dy));
 	
 	if (maxx - minx < 100 && maxy - miny < 100) {		
+		var pixels = {};
+		
+		for(var i = 0; i < a.length; i++) {
+			var xt = a[i].x + (t * a[i].dx);
+			var yt = a[i].y + (t * a[i].dy);	
+			
+			pixels[xt+','+yt] = true;
+		}
+	
 		console.log('------ time: ' + t + ' ------');
 		for(var y = miny; y <= maxy; y++) {
 			var line = '';
