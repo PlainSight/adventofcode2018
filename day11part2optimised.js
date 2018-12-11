@@ -2,8 +2,6 @@ var serialNumber = 9445;
 
 var sumAreaTable = {};
 
-var startTime = new Date();
-
 function insertPower(x, y, power) {
 	sumAreaTable[x + y * 300] = power;
 }
@@ -11,6 +9,8 @@ function insertPower(x, y, power) {
 function getPower(x, y) {
 	return sumAreaTable[x + y * 300];
 }
+
+var startTime = new Date();
 
 for(var x = 1; x <= 300; x++) {
 	for(var y = 1; y <= 300; y++) {
@@ -45,8 +45,8 @@ var bestY = 1;
 var bestSquareSize = 1;
 var bestScore = 0;
 
-for(var x = 1; x < 298; x++) {
-	for(var y = 1; y < 298; y++) {
+for(var x = 1; x < 300; x++) {
+	for(var y = 1; y < 300; y++) {
 		
 		for(var squareSize = 1; squareSize <= 300 - Math.max(x, y); squareSize++) {
 			var score = getPower(x+squareSize-1, y+squareSize-1);
