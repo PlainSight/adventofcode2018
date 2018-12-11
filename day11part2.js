@@ -48,6 +48,8 @@ function makeTree(startx, starty, endx, endy) {
 	}
 }
 
+var startTime = new Date();
+
 var root = makeTree(1, 1, 300, 300);
 
 console.log('tree made');
@@ -86,9 +88,8 @@ for (var squareSize = 1; squareSize <= 300; squareSize++) {
 			}
 		}
 	}
-	
-	console.log('current size:' + squareSize);
 }
 
 console.log(bestScore + ': ' + bestX + ',' + bestY + ',' + bestSquareSize);
 
+console.log(new Date() - startTime + 'ms');
