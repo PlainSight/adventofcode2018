@@ -1,39 +1,45 @@
 var input = '################################\r\n#############..#################\r\n#############..#.###############\r\n############G..G.###############\r\n#############....###############\r\n##############.#...#############\r\n################..##############\r\n#############G.##..#..##########\r\n#############.##.......#..######\r\n#######.####.G##.......##.######\r\n######..####.G.......#.##.######\r\n#####.....#..GG....G......######\r\n####..###.....#####.......######\r\n####.........#######..E.G..#####\r\n####.G..G...#########....E.#####\r\n#####....G.G#########.#...######\r\n###........G#########....#######\r\n##..#.......#########....##.E.##\r\n##.#........#########.#####...##\r\n#............#######..#.......##\r\n#.G...........#####........E..##\r\n#....G........G..G.............#\r\n#..................E#...E...E..#\r\n#....#...##...G...E..........###\r\n#..###...####..........G###E.###\r\n#.###########..E.......#########\r\n#.###############.......########\r\n#################.......########\r\n##################....#..#######\r\n##################..####.#######\r\n#################..#####.#######\r\n################################';
 
-//var input = '#########\r\n#G......#\r\n#.E.#...#\r\n#..##..G#\r\n#...##..#\r\n#...#...#\r\n#.G...G.#\r\n#.....G.#\r\n#########';
-
-
-var rows = input.split('\r\n');
-
 var grid = [];
 var entities = [];
 
-var eid= 1;
+function setup(elfAttack) {
+	var rows = input.split('\r\n');
 
-var y = 0;
-for(var r in rows) {
-	var row = rows[r];
-	var x = 0;
-	
-	var gridRow = [];
-	for(var c in row) {
-		switch(row[c]){
-			case '#':
-				gridRow.push({ block: true, x: x, y: y });
-				break;
-			case 'E':
-			case 'G':
-				entities.push({ id: eid, faction: row[c], x: x, y: y, hp: 200, attack: 3 });
-				eid++;
-				gridRow.push({ block: true, x: x, y: y });
-				break;
-			default:
-				gridRow.push({ block: false, x: x, y: y });
+	grid = [];
+	entities = [];
+
+	var eid= 1;
+
+	var y = 0;
+	for(var r in rows) {
+		var row = rows[r];
+		var x = 0;
+		
+		var gridRow = [];
+		for(var c in row) {
+			switch(row[c]){
+				case '#':
+					gridRow.push({ block: true, x: x, y: y });
+					break;
+				case 'E':
+					entities.push({ id: eid, faction: 'E', x: x, y: y, hp: 200, attack: elfAttack });
+					eid++;
+					gridRow.push({ block: true, x: x, y: y });
+					break;
+				case 'G':
+					entities.push({ id: eid, faction: 'G', x: x, y: y, hp: 200, attack: 3 });
+					eid++;
+					gridRow.push({ block: true, x: x, y: y });
+					break;
+				default:
+					gridRow.push({ block: false, x: x, y: y });
+			}
+			x++;
 		}
-		x++;
+		grid.push(gridRow);
+		y++;
 	}
-	grid.push(gridRow);
-	y++;
 }
 
 function bothFactionsAlive() {
@@ -256,58 +262,72 @@ lineloop:	for(var x = 0; x < grid[y].length; x++) {
 	}
 }
 
-var iters = 0;
+function runSim(elfAttack) {
+	setup(elfAttack);
+	
+	var iters = 0;
 
-while(bothFactionsAlive()) {
-	
-	var orderedEntities = entities.sort(function(a, b) {
-		if(a.y == b.y) {
-			return a.x - b.x;
-		}
-		return a.y - b.y;
-	});
-	
-	//console.log(iters);
-	//printWorld();
-	//console.log(entities);
-	
-	for(var e in orderedEntities) {
-		var entity = orderedEntities[e];
+	while(bothFactionsAlive()) {
 		
-		if(entity.hp < 0) {
-			continue;
-		}
-		
-		if(!attackAdjacentEnemy(entity)) {
-			var closestTargetAndPath = findClosestTarget(entity);
+		var orderedEntities = entities.sort(function(a, b) {
+			if(a.y == b.y) {
+				return a.x - b.x;
+			}
+			return a.y - b.y;
+		});
 			
-			if(closestTargetAndPath) {
-				// we can move
-				grid[entity.y][entity.x].block = false;
-				var newLocation = closestTargetAndPath.path[0];
-				
-				//printPath(closestTargetAndPath.path);
-				
-				grid[newLocation.y][newLocation.x].block = true;
-				entity.x = newLocation.x;
-				entity.y = newLocation.y;
+		for(var e in orderedEntities) {
+			var entity = orderedEntities[e];
+			
+			if(entity.hp < 0) {
+				continue;
 			}
 			
-			attackAdjacentEnemy(entity);
+			if(!attackAdjacentEnemy(entity)) {
+				var closestTargetAndPath = findClosestTarget(entity);
+				
+				if(closestTargetAndPath) {
+					// we can move
+					grid[entity.y][entity.x].block = false;
+					var newLocation = closestTargetAndPath.path[0];
+					
+					//printPath(closestTargetAndPath.path);
+					
+					grid[newLocation.y][newLocation.x].block = true;
+					entity.x = newLocation.x;
+					entity.y = newLocation.y;
+				}
+				
+				attackAdjacentEnemy(entity);
+			}
 		}
+		iters++;
 	}
-	iters++;
+
+	var sumhp = 0;
+	
+	if (entities.length != 10 || entities[0].faction == 'G') {
+		return null;
+	}
+
+	for(var e in entities) {
+		var entity = entities[e];
+		sumhp += entity.hp;
+	}
+	
+	console.log(iters-1);
+	printWorld();
+	console.log(entities);
+
+	console.log('hp:' + sumhp);
+	
+	return { turns: iters-1, sumhp: sumhp };
 }
 
-console.log(iters-1);
-printWorld();
-console.log(entities);
-
-var sumhp = 0;
-
-for(var e in entities) {
-	var entity = entities[e];
-	sumhp += entity.hp;
+for(var i = 10; i < 100; i++) {
+	console.log('attack: ' + i);
+	if(runSim(i) != null) {
+		return;
+	}
 }
 
-console.log('hp:' + sumhp);
