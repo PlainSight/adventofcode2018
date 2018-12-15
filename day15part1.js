@@ -268,7 +268,8 @@ while(bothFactionsAlive()) {
 	});
 	
 	//console.log(iters);
-	//printWorld();
+	console.clear();
+	printWorld();
 	//console.log(entities);
 	
 	for(var e in orderedEntities) {
