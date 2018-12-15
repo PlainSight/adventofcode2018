@@ -1,8 +1,7 @@
-//var input = '################################\r\n#############..#################\r\n#############..#.###############\r\n############G..G.###############\r\n#############....###############\r\n##############.#...#############\r\n################..##############\r\n#############G.##..#..##########\r\n#############.##.......#..######\r\n#######.####.G##.......##.######\r\n######..####.G.......#.##.######\r\n#####.....#..GG....G......######\r\n####..###.....#####.......######\r\n####.........#######..E.G..#####\r\n####.G..G...#########....E.#####\r\n#####....G.G#########.#...######\r\n###........G#########....#######\r\n##..#.......#########....##.E.##\r\n##.#........#########.#####...##\r\n#............#######..#.......##\r\n#.G...........#####........E..##\r\n#....G........G..G.............#\r\n#..................E#...E...E..#\r\n#....#...##...G...E..........###\r\n#..###...####..........G###E.###\r\n#.###########..E.......#########\r\n#.###############.......########\r\n#################.......########\r\n##################....#..#######\r\n##################..####.#######\r\n#################..#####.#######\r\n################################';
+var input = '################################\r\n#############..#################\r\n#############..#.###############\r\n############G..G.###############\r\n#############....###############\r\n##############.#...#############\r\n################..##############\r\n#############G.##..#..##########\r\n#############.##.......#..######\r\n#######.####.G##.......##.######\r\n######..####.G.......#.##.######\r\n#####.....#..GG....G......######\r\n####..###.....#####.......######\r\n####.........#######..E.G..#####\r\n####.G..G...#########....E.#####\r\n#####....G.G#########.#...######\r\n###........G#########....#######\r\n##..#.......#########....##.E.##\r\n##.#........#########.#####...##\r\n#............#######..#.......##\r\n#.G...........#####........E..##\r\n#....G........G..G.............#\r\n#..................E#...E...E..#\r\n#....#...##...G...E..........###\r\n#..###...####..........G###E.###\r\n#.###########..E.......#########\r\n#.###############.......########\r\n#################.......########\r\n##################....#..#######\r\n##################..####.#######\r\n#################..#####.#######\r\n################################';
 
-var input = '#########\r\n#G..G..G#\r\n#.......#\r\n#.......#\r\n#G..E..G#\r\n#.......#\r\n#.......#\r\n#G..G..G#\r\n#########';
+//var input = '#########\r\n#G......#\r\n#.E.#...#\r\n#..##..G#\r\n#...##..#\r\n#...#...#\r\n#.G...G.#\r\n#.....G.#\r\n#########';
 
-//var input = '#########\r\n#...G...#\r\n#.......#\r\n#.......#\r\n#...E...#\r\n#.......#\r\n#.......#\r\n#.......#\r\n#########';
 
 var rows = input.split('\r\n');
 
@@ -24,7 +23,7 @@ for(var r in rows) {
 				break;
 			case 'E':
 			case 'G':
-				entities.push({ id: eid, faction: row[c], x: x, y: y, hp: 200 });
+				entities.push({ id: eid, faction: row[c], x: x, y: y, hp: 200, attack: 3 });
 				eid++;
 				gridRow.push({ block: true, x: x, y: y });
 				break;
@@ -138,7 +137,7 @@ function attackAdjacentEnemy(entity) {
 	for(var e in entities) {
 		var other = entities[e];
 		
-		if(other.faction != entity.faction) {
+		if(other.faction != entity.faction && other.hp > 0) {
 			if(Math.abs(other.x - entity.x) + Math.abs(other.y - entity.y) == 1) {
 				adjacentEnemies.push(other);
 			}
@@ -150,13 +149,16 @@ function attackAdjacentEnemy(entity) {
 	}
 	
 	var enemyToAttack = adjacentEnemies.sort(function(a, b) {
-		if(a.y == b.y) {
-			return a.x - b.x;
+		if(a.hp == b.hp) {
+			if(a.y == b.y) {
+				return a.x - b.x;
+			}
+			return a.y - b.y;
 		}
-		return a.y - b.y;
+		return a.hp - b.hp;
 	})[0];
-	
-	enemyToAttack.hp -= 3;
+		
+	enemyToAttack.hp -= entity.attack;
 	
 	if(enemyToAttack.hp <= 0) {
 		grid[enemyToAttack.y][enemyToAttack.x].block = false;
@@ -256,8 +258,8 @@ lineloop:	for(var x = 0; x < grid[y].length; x++) {
 
 var iters = 0;
 
-while(bothFactionsAlive() && iters < 4) {
-	iters++;
+while(bothFactionsAlive()) {
+	
 	var orderedEntities = entities.sort(function(a, b) {
 		if(a.y == b.y) {
 			return a.x - b.x;
@@ -265,10 +267,11 @@ while(bothFactionsAlive() && iters < 4) {
 		return a.y - b.y;
 	});
 	
-	printWorld();
+	//console.log(iters);
+	//printWorld();
+	//console.log(entities);
 	
 	for(var e in orderedEntities) {
-		//printWorld();
 		var entity = orderedEntities[e];
 		
 		if(entity.hp < 0) {
@@ -289,6 +292,23 @@ while(bothFactionsAlive() && iters < 4) {
 				entity.x = newLocation.x;
 				entity.y = newLocation.y;
 			}
+			
+			attackAdjacentEnemy(entity);
 		}
 	}
+	iters++;
 }
+
+console.log(iters-1);
+printWorld();
+console.log(entities);
+iters++;
+
+var sumhp = 0;
+
+for(var e in entities) {
+	var entity = entities[e];
+	sumhp += entity.hp;
+}
+
+console.log('hp:' + sumhp);
