@@ -3,73 +3,69 @@ var input = '^SSWNWSWWNWNNEES(EENWNNEEESEESSWSW(SESESESESWWNWSWNWNN(ESEWNW|)WSSW
 var rooms = {};
 
 function visitRoom(x, y, entrance) {
-	var up = rooms[x+','+(y-1)];
-	var down = rooms[x+','+(y+1)];
-	var left = rooms[(x-1)+','+y];
-	var right = rooms[(x+1)+','+y];
+	var north = rooms[x+','+(y-1)];
+	var south = rooms[x+','+(y+1)];
+	var west = rooms[(x-1)+','+y];
+	var east = rooms[(x+1)+','+y];
 		
 	var lastRoom = { value: 0, entrances: {} };
 	
 	switch(entrance) {
 		case 'N':
-			lastRoom = up;
-			if(up) {
-				up.entrances['S'] = true;
+			lastRoom = north;
+			if(north) {
+				north.entrances['S'] = true;
 			}
 			break;
 		case 'S':
-			lastRoom = down;
-			if(down) {
-				down.entrances['N'] = true;
+			lastRoom = south;
+			if(south) {
+				south.entrances['N'] = true;
 			}
 			break;
 		case 'E':
-			lastRoom = right;
-			if(right) {
-				right.entrances['W'] = true;
+			lastRoom = east;
+			if(east) {
+				east.entrances['W'] = true;
 			}
 			break;
 		case 'W':
-			lastRoom = left;
-			if(left) {
-				left.entrances['E'] = true;
+			lastRoom = west;
+			if(west) {
+				west.entrances['E'] = true;
 			}
 			break;
 	}
 	
 	var room = rooms[x+','+y];
 	
-	//console.log('x: ' + x + ', y:' + y + ', entrance: ' + entrance); 
-	
 	if (!room) {
 		var entrances = {};
 		entrances[entrance] = true;
 		rooms[x+','+y] = { value: lastRoom.value+1, entrances: entrances };
-		
-		//console.log('visiting new room ' + x + ',' + y);
 	} else {
 		var smallestValue = 999999;
 		room.entrances[entrance] = true;
 		for(var e in room.entrances) {
 			switch(e) {
 				case 'N':
-					if(up && up.value < smallestValue) {
-						smallestValue = up.value+1;
+					if(north && north.value < smallestValue) {
+						smallestValue = north.value+1;
 					}
 					break;
 				case 'S':
-					if(down && down.value < smallestValue) {
-						smallestValue = down.value+1;
+					if(south && south.value < smallestValue) {
+						smallestValue = south.value+1;
 					}
 					break;
 				case 'E':
-					if(right && right.value < smallestValue) {
-						smallestValue = right.value+1;
+					if(east && east.value < smallestValue) {
+						smallestValue = east.value+1;
 					}
 					break;
 				case 'W':
-					if(left && left.value < smallestValue) {
-						smallestValue = left.value+1;
+					if(west && west.value < smallestValue) {
+						smallestValue = west.value+1;
 					}
 					break;
 			}
@@ -80,60 +76,51 @@ function visitRoom(x, y, entrance) {
 	}
 }
 
-var rootTrie = { directions: [] };
-
 function parseInput(index) {
-	var tx = x;
-	var ty = y;
+	var currentOption = 0;
+	var options = [{ directions: [] }];
 	
 	while(true) {
 		if(index >= input.length) {
 			return;
 		}
+		var currentCharacter = input[index];
 		switch(input[index]) {
 			case '^':
-				visitRoom(tx, ty, '');
 				index++;
 				break;
 			case '(':
 				index++;
-				parseInput(tx, ty, index);
+				var childOptions = parseInput(index);
+				options[currentOption].directions.push({ options: childOptions});
 				break;
 			case '|':
-				tx = x;
-				ty = y;
+				currentOption++;
+				options[currentOption] = [];
 				index++;
-				parseInput(tx, ty, index);
 				break;
 			case '$':
 				return;
 			case ')':
 				index++;
+				return options;
 			case 'N':
-				ty--;
-				index++;
-				visitRoom(tx, ty, 'S');
-				break;
 			case 'S':
-				ty++;
-				index++;
-				visitRoom(tx, ty, 'N');
-				break;
 			case 'E':
-				tx++;
-				index++;
-				visitRoom(tx, ty, 'W');
-				break;
 			case 'W':
-				tx--;
+				options[currentOption].directions.push(currentCharacter);
 				index++;
-				visitRoom(tx, ty, 'E');
 				break;
 		}
 	}
 }
 
-parseInput(0);
+var root = parseInput(0);
+
+function walkTree() {
+	
+	
+}
 
 var maxDoors = 0;
 
