@@ -122,12 +122,8 @@ while(instructionPointer >= 0 && instructionPointer < instructions.length) {
 	instructionsExecuted++;
 
 	if(instructionPointer == 28) {
-		if(twentyEightValues[registers[5]]) {
-			break;
-		} else {
-			twentyEightValues[registers[5]] = registers[5];
-		}
-		lastHalter = registers[5];
+		console.log('first Halter: ' + registers[5]);
+		return;
 	}
 
 	// write register to instruction pointer
@@ -135,5 +131,3 @@ while(instructionPointer >= 0 && instructionPointer < instructions.length) {
 	instructionPointer++;
 }
 
-console.log('lastHalter: ' + lastHalter);
-console.log('halted: ' + instructionsExecuted);
